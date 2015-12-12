@@ -1,13 +1,14 @@
 ExtractIOC
 ===============
+This application allows...
 
-Summary
+Usage
 ---------------
 
 Release Notes
 ---------------
 
-Use
+Future Release
 ---------------
 
 Reporting Issues
@@ -17,7 +18,6 @@ a bug, or simply crashed the application - [Report it to me]. I'll do my best
 to fix any issues you're having.
 
 [Report it to me]: https://github.com/threatfix/ExtractIOC/wiki
-
 
 About
 ----------------
