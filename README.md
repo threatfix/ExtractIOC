@@ -1,5 +1,3 @@
-![ThreatFix](http://cdn1.editmysite.com/uploads/5/1/4/0/51408561/background-images/1387838909.png)
-
 ExtractIOC
 ===============
 
@@ -20,7 +18,7 @@ to fix any issues you're having.
 
 [Report it to me]: https://github.com/threatfix/ExtractIOC/wiki
 
----------------
-ThreatFix
-----------------
 
+About
+----------------
+![ThreatFix](http://cdn1.editmysite.com/uploads/5/1/4/0/51408561/background-images/1387838909.png)
