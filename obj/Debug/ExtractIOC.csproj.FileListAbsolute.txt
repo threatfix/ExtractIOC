@@ -1,0 +1,9 @@
+c:\users\paulh\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\bin\Debug\ExtractIOC.exe.config
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.csprojResolveAssemblyReference.cache
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.ExtractIOC.resources
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.Properties.Resources.resources
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.csproj.GenerateResource.Cache
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\bin\Debug\ExtractIOC.exe
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\bin\Debug\ExtractIOC.pdb
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.exe
+C:\Users\PaulH\documents\visual studio 2013\Projects\ExtractIOC\ExtractIOC\obj\Debug\ExtractIOC.pdb
