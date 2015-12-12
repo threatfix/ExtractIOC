@@ -15,7 +15,7 @@ Use
 Reporting Issues
 ----------------
 If you're having trouble compiling or executing ExtractIOC, or have identified
-a bug, or simply crashed the application - report it to me. I'll do my best
+a bug, or simply crashed the application - [Reporting Crashes]report it to me. I'll do my best
 to fix any issues you're having.
 
 [Reporting Crashes]: https://github.com/threatfix/ExtractIOC/wiki
