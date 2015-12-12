@@ -4,6 +4,7 @@ This application allows...
 
 Usage
 ---------------
+PICTURE HERE
 
 Release Notes
 ---------------
