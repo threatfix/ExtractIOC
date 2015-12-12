@@ -1,4 +1,4 @@
-![ThreatFix](http://cdn1.editmysite.com/uploads/5/1/4/0/51408561/background-images/1387838909.png)]
+![ThreatFix](http://cdn1.editmysite.com/uploads/5/1/4/0/51408561/background-images/1387838909.png)
 
 ExtractIOC
 ===============
