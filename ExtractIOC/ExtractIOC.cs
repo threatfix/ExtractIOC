@@ -60,8 +60,13 @@ namespace ExtractIOC
                 {
                     while ((txtLine = txtFileReader.ReadLine()) != null)
                     {
+                        //var ip4Add = Regex.Match(txtLine, @"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$");
+                        //var hashAdd = Regex.Match(txtLine, @"^[0-9a-f]{32}$");
+                        //var emailAdd = Regex.Match(txtLine, @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
+                        //var domainAdd = Regex.Match(txtLine, @"^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$");
+
                         var ip4Add = Regex.Match(txtLine, @"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$");
-                        var hashAdd = Regex.Match(txtLine, @"^[0-9a-f]{32}$");
+                        var hashAdd = Regex.Match(txtLine, @"(^)?[^\w\d][0-9a-f]{32}[^\w\d]");
                         var emailAdd = Regex.Match(txtLine, @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
                         var domainAdd = Regex.Match(txtLine, @"^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$");
 
