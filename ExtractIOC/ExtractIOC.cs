@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.IO;
 
 namespace ExtractIOC
@@ -20,32 +21,161 @@ namespace ExtractIOC
         List<string> md5List = new List<String>();
         List<string> emailList = new List<String>();
         List<string> domainList = new List<String>();
-        int hashCt, ipCt, emailCt, domainCt;
-        int uHashCt, uIpCt, uEmailCt, uDomainCt;
+        int hashCt, ipCt, emailCt, domainCt, totalIOCct;
+        int uHashCt, uIpCt, uEmailCt, uDomainCt, uIOCct;
+        int lineCount;
+        long currentLine;
 
+        //Initialization
+        //Initializes Form and Sets Default Values
         public ExtractIOC()
         {
             InitializeComponent();
+            setProgressBarValues();
         }
 
+        //Extraction - Main Extract
+        //Handles Main Extraction Function. Compares Selected IOC Regex with Each Line - Places Matches in IOC Specific Bucket
         private void extractButton_Click(object sender, EventArgs e)
         {
-            iocCountListBox.Items.Clear();
-            string txtLine, wLine;
-            int hitCount=0;
+            StringBuilder txtFile = new StringBuilder();
+            StringBuilder wList = new StringBuilder();
+            string txtLine, wLine, iocMatch;
+            iocMatch = "";
+            int hitCount = 0;
             hashCt = 0;
             ipCt = 0;
             emailCt = 0;
             domainCt = 0;
-
             uHashCt = 0;
             uIpCt = 0;
             uEmailCt = 0;
             uDomainCt = 0;
+            totalIOCct = 0;
+            uIOCct = 0;
 
-            StringBuilder txtFile = new StringBuilder();
-            StringBuilder wList = new StringBuilder();
+            iocCountListBox.Items.Clear();
 
+            extractSaveDialog();
+            countLines();
+
+            if (exportLocation != "")
+            {
+                // Read the file and display it line by line. 
+                foreach (string fname in fileListingListBox.Items)
+                {
+                    currentLine = 0;
+
+                    using (System.IO.StreamReader txtFileReader = new System.IO.StreamReader(fname))
+                    {
+                        while ((txtLine = txtFileReader.ReadLine()) != null)
+                        {
+                            UpdateProgressBar(1);
+
+                            var ip4Add = Regex.Match(txtLine, @"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})");
+                            var hashAdd = Regex.Match(txtLine, @"(^)?[^\w\d][0-9a-f]{32}[^\w\d]");
+                            var emailAdd = Regex.Match(txtLine, @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
+                            var domainAdd = Regex.Match(txtLine, @"((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})");
+                            if (ip4Add.Success && ipv4CheckBox.Checked == true) iocMatch = ip4Add.Value;
+                            else if (hashAdd.Success && md5CheckBox.Checked == true) iocMatch = hashAdd.Value;
+                            else if (emailAdd.Success && emailCheckBox.Checked == true) iocMatch = emailAdd.Value;
+                            else if (domainAdd.Success && domainCheckBox.Checked == true) iocMatch = domainAdd.Value;
+
+                            if (ip4Add.Success && ipv4CheckBox.Checked == true || hashAdd.Success && md5CheckBox.Checked == true || emailAdd.Success && emailCheckBox.Checked == true || domainAdd.Success && domainCheckBox.Checked == true)
+                            {
+
+                                if (whiteListLocation != null)
+                                {
+                                    using (System.IO.StreamReader wListReader = new System.IO.StreamReader(whiteListLocation))
+                                    {
+                                        hitCount = 0;
+                                        while ((wLine = wListReader.ReadLine()) != null)
+                                        {
+                                            if (wLine.ToString() == txtLine.ToString())
+                                            {
+                                                hitCount++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (hitCount < 1)
+                                {
+                                    if (ip4Add.Success && ipv4CheckBox.Checked == true)
+                                    {
+                                        ipCt++;
+                                        totalIOCct++;
+                                    }
+                                    else if (hashAdd.Success && md5CheckBox.Checked) 
+                                    {
+                                        hashCt++;
+                                        totalIOCct++;
+                                    }
+                                    else if (emailAdd.Success && emailCheckBox.Checked == true)
+                                    {
+                                        emailCt++;
+                                        totalIOCct++;
+                                    }
+                                    else if (domainAdd.Success && domainCheckBox.Checked) 
+                                    {
+                                        domainCt++;
+                                        totalIOCct++;
+                                    }
+
+                                    if (iocList.Contains(iocMatch)) continue;
+                                    iocList.Add(iocMatch);
+                                    if (ip4Add.Success && ipv4CheckBox.Checked == true)
+                                    {
+                                        uIpCt++;
+                                        uIOCct++;
+                                        ipv4List.Add(iocMatch);
+                                    }
+                                    else if (hashAdd.Success && md5CheckBox.Checked)
+                                    {
+                                        uHashCt++;
+                                        uIOCct++;
+                                        md5List.Add(iocMatch);
+                                    }
+                                    else if (emailAdd.Success && emailCheckBox.Checked == true)
+                                    {
+                                        uEmailCt++;
+                                        uIOCct++;
+                                        emailList.Add(iocMatch);
+                                    }
+                                    else if (domainAdd.Success && domainCheckBox.Checked)
+                                    {
+                                        uDomainCt++;
+                                        uIOCct++;
+                                        domainList.Add(iocMatch);
+                                    }
+                                    hitCount = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                File.Delete(exportLocation);
+                selectExportType();
+                ShowIOCCounts();
+                extractProgressBar.Value = 0;
+                currentLine = 0;
+                MessageBox.Show("Extraction Completed", "ExtractIOC");
+
+                if (safeIOCBox.Checked == true) addSafeMode();
+            }
+        }
+
+        //Initialization
+        //Sets Minimum and Maximum Progress Bar Values
+        private void setProgressBarValues()
+        {
+            extractProgressBar.Minimum = 0;
+            extractProgressBar.Maximum = 100;
+        }
+
+        //Extraction - Save Dialog
+        //Prompts User For Save Location
+        private void extractSaveDialog()
+        {
             SaveFileDialog save_dialog = new SaveFileDialog();
             save_dialog.Filter = "Text file|*.txt";
 
@@ -53,87 +183,75 @@ namespace ExtractIOC
             {
                 exportLocation = save_dialog.FileName.ToString();
             }
-            // Read the file and display it line by line. 
-            foreach (string fname in fileListingListBox.Items)
+            else
             {
-                using (System.IO.StreamReader txtFileReader = new System.IO.StreamReader(fname))
+                exportLocation = "";
+            }
+
+        }
+
+        //Extraction - Safe Mode
+        //Adds delimiters like [.] to values
+        private void addSafeMode()
+        {
+            if (newLineRadio.Checked == true)
+            {
+                string unsafeText = File.ReadAllText(exportLocation);
+                unsafeText = Regex.Replace(unsafeText, @"\.", @"[.]");
+                File.WriteAllText(exportLocation, unsafeText);
+            }
+
+            if (csvRadio.Checked == true)
+            {
+                if (ipv4CheckBox.Checked == true)
                 {
-                    while ((txtLine = txtFileReader.ReadLine()) != null)
-                    {
-                        //var ip4Add = Regex.Match(txtLine, @"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$");
-                        //var hashAdd = Regex.Match(txtLine, @"^[0-9a-f]{32}$");
-                        //var emailAdd = Regex.Match(txtLine, @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
-                        //var domainAdd = Regex.Match(txtLine, @"^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$");
-
-                        var ip4Add = Regex.Match(txtLine, @"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$");
-                        var hashAdd = Regex.Match(txtLine, @"(^)?[^\w\d][0-9a-f]{32}[^\w\d]");
-                        var emailAdd = Regex.Match(txtLine, @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
-                        var domainAdd = Regex.Match(txtLine, @"^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$");
-
-                        if (ip4Add.Success && ipv4CheckBox.Checked == true || hashAdd.Success && md5CheckBox.Checked == true || emailAdd.Success && emailCheckBox.Checked == true || domainAdd.Success && domainCheckBox.Checked == true)
-                        {
-                            if (whiteListLocation != null)
-                            {
-                                using (System.IO.StreamReader wListReader = new System.IO.StreamReader(whiteListLocation))
-                                {
-                                    hitCount = 0;
-                                    while ((wLine = wListReader.ReadLine()) != null)
-                                    {
-                                        if (wLine.ToString() == txtLine.ToString())
-                                        {
-                                            hitCount++;
-                                        }
-                                    }
-                                }
-                            }
-                            if (hitCount < 1)
-                            {
-                                if (safeIOCBox.Checked == true) txtLine = Regex.Replace(txtLine, @"\.", @"[.]");
-
-                                if (ip4Add.Success && ipv4CheckBox.Checked == true) ipCt++;
-                                else if (hashAdd.Success && md5CheckBox.Checked) hashCt++;
-                                else if (emailAdd.Success && emailCheckBox.Checked == true) emailCt++;
-                                else if (domainAdd.Success && domainCheckBox.Checked) domainCt++;
-
-                                if (iocList.Contains(txtLine)) continue;
-                                iocList.Add(txtLine);
-                                if (ip4Add.Success && ipv4CheckBox.Checked == true)
-                                {
-                                    uIpCt++;
-                                    ipv4List.Add(txtLine);
-                                }
-                                else if (hashAdd.Success && md5CheckBox.Checked)
-                                {
-                                    uHashCt++;
-                                    md5List.Add(txtLine);
-                                }
-                                else if (emailAdd.Success && emailCheckBox.Checked == true)
-                                {
-                                    uEmailCt++;
-                                    emailList.Add(txtLine);
-                                }
-                                else if (domainAdd.Success && domainCheckBox.Checked)
-                                {
-                                    uDomainCt++;
-                                    domainList.Add(txtLine);
-                                }
-                                hitCount = 0;
-                            }
-                        }
-                    }
+                    string unsafe_ipv4CSV = File.ReadAllText(exportLocation + "_IPv4.csv");
+                    unsafe_ipv4CSV = Regex.Replace(unsafe_ipv4CSV, @"\.", @"[.]");
+                    File.WriteAllText(exportLocation + "_IPv4.csv", unsafe_ipv4CSV);
+                }
+                if (emailCheckBox.Checked == true)
+                {
+                    string unsafe_emailCSV = File.ReadAllText(exportLocation + "_Email.csv");
+                    unsafe_emailCSV = Regex.Replace(unsafe_emailCSV, @"\.", @"[.]");
+                    File.WriteAllText(exportLocation + "_Email.csv", unsafe_emailCSV);
+                }
+                if (md5CheckBox.Checked == true)
+                {
+                    string unsafe_md5CSV = File.ReadAllText(exportLocation + "_MD5.csv");
+                    unsafe_md5CSV = Regex.Replace(unsafe_md5CSV, @"\.", @"[.]");
+                    File.WriteAllText(exportLocation + "_MD5.csv", unsafe_md5CSV);
+                }
+                if (domainCheckBox.Checked == true)
+                {
+                    string unsafe_domainCSV = File.ReadAllText(exportLocation + "_Domain.csv");
+                    unsafe_domainCSV = Regex.Replace(unsafe_domainCSV, @"\.", @"[.]");
+                    File.WriteAllText(exportLocation + "_Domain.csv", unsafe_domainCSV);
                 }
             }
-            File.Delete(exportLocation);
+        }
+
+        //Extraction - Export Type
+        //Calls User Specified Export Function
+        private void selectExportType()
+        {
             if (newLineRadio.Checked == true) saveAsList();
             if (csvRadio.Checked == true) saveAsCSV();
-            iocCountListBox.Items.Add("Total IOCs Found");
-            iocCountListBox.Items.Add("------------------------------------");
-            if (ipv4CheckBox.Checked == true) iocCountListBox.Items.Add("IP Addresses:\t" + ipCt + " (" + uIpCt + " Unique)" );
+        }
+
+        //Extraction - IOC Counts
+        //Displays IOC Counts in iocCountListBox
+        private void ShowIOCCounts()
+        {
+            iocCountListBox.Items.Add("Total IOCs Found:\t" + totalIOCct + " (" + uIOCct + " Unique)");
+            iocCountListBox.Items.Add("----------------------------------------------------------");
+            if (ipv4CheckBox.Checked == true) iocCountListBox.Items.Add("IP Addresses:\t" + ipCt + " (" + uIpCt + " Unique)");
             if (emailCheckBox.Checked == true) iocCountListBox.Items.Add("Email Addresses:\t" + emailCt + " (" + uEmailCt + " Unique)");
             if (md5CheckBox.Checked == true) iocCountListBox.Items.Add("MD5 Hashes:\t" + hashCt + " (" + uHashCt + " Unique)");
             if (domainCheckBox.Checked == true) iocCountListBox.Items.Add("Domains:\t\t" + domainCt + " (" + uDomainCt + " Unique)");
         }
 
+        //Extraction - CSV Generation
+        //Creates CSV Files Based on IOC Buckets
         private void saveAsCSV()
         {
             if (ipv4CheckBox.Checked == true)
@@ -158,6 +276,8 @@ namespace ExtractIOC
             }
         }
 
+        //Extraction - FullList Generation
+        //Merges bucketed lists (IP List, MD5 List, etc) into main list
         private void saveAsList()
         {
             if (ipv4CheckBox.Checked == true)
@@ -182,10 +302,12 @@ namespace ExtractIOC
             }
         }
 
+        //User Selection - IOC
+        //Prompts user to select IOC Files
         private void fileSelectBtn_Click(object sender, EventArgs e)
         {
             fileListingListBox.Items.Clear();
-
+            extractProgressBar.Value = 0;
             OpenFileDialog open_dialog = new OpenFileDialog();
             open_dialog.Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*";
             open_dialog.Multiselect = true;
@@ -194,10 +316,8 @@ namespace ExtractIOC
             DialogResult dr = open_dialog.ShowDialog();
             if (dr == System.Windows.Forms.DialogResult.OK)
             {
-                // Read the files
                 foreach (String file in open_dialog.FileNames)
                 {
-                    // Create a PictureBox.
                     try
                     {
                         if (fileListingListBox.Items.Contains(file)) continue;
@@ -206,21 +326,14 @@ namespace ExtractIOC
                     }
                     catch (Exception ex)
                     {
-                        // The user lacks appropriate permissions to read files, discover paths, etc.
-                        MessageBox.Show("Security error. Please contact your administrator for details.\n\n" +
-                            "Error message: " + ex.Message + "\n\n" +
-                            "Details (send to Support):\n\n" + ex.StackTrace
-                        );
+                        MessageBox.Show("Something went wrong...contact me pls.", "Welp");
                     }
                 }
             }
         }
 
-        private void modifyWListBtn_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("notepad.exe", whiteListLocation);
-        }
-
+        //User Selection - Whitelist
+        //Prompts User to Load An Existing Whitelist
         private void loadWListBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog open_dialog = new OpenFileDialog();
@@ -236,14 +349,44 @@ namespace ExtractIOC
             }
         }
 
+        //Whitelist
+        //Opens Loaded Whitelist (Notepad.exe)
+        private void modifyWListBtn_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("notepad.exe", whiteListLocation);
+        }
+
+        //ProgressBar
+        //Updates extractProgressBar Status
+        private void UpdateProgressBar(int lineLength)
+        {
+            currentLine += 1;
+            extractProgressBar.Value = (int)(((decimal)currentLine / (decimal)lineCount) * (decimal)100);
+        }
+
+        //ProgressBar
+        //Count lines in all selected files
+        private void countLines()
+        {
+            foreach (string fname in fileListingListBox.Items)
+            {
+                lineCount = File.ReadAllLines(fname).Length;
+            }
+        }
+
+        //Links
+        //ThreatFix Graphic Click
         private void threatBox_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("http://www.threatfix.com");
         }
 
+        //Links
+        //ThreatFix Link Clicked
         private void tFixLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("http://www.threatfix.com");
         }
+
     }
 }

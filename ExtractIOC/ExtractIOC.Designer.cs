@@ -28,11 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExtractIOC));
             this.statusBar = new System.Windows.Forms.Label();
             this.tFixLink = new System.Windows.Forms.LinkLabel();
             this.label2 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.extractProgressBar = new System.Windows.Forms.ProgressBar();
+            this.label1 = new System.Windows.Forms.Label();
             this.fileListingBox = new System.Windows.Forms.GroupBox();
             this.fileListingListBox = new System.Windows.Forms.ListBox();
             this.fileSelectGroupBox = new System.Windows.Forms.GroupBox();
@@ -56,7 +59,8 @@
             this.md5CheckBox = new System.Windows.Forms.CheckBox();
             this.exportBox = new System.Windows.Forms.GroupBox();
             this.safeIOCBox = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.panel2.SuspendLayout();
             this.fileListingBox.SuspendLayout();
             this.fileSelectGroupBox.SuspendLayout();
@@ -84,7 +88,7 @@
             // 
             this.tFixLink.AutoSize = true;
             this.tFixLink.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tFixLink.Location = new System.Drawing.Point(376, 6);
+            this.tFixLink.Location = new System.Drawing.Point(376, 13);
             this.tFixLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.tFixLink.Name = "tFixLink";
             this.tFixLink.Size = new System.Drawing.Size(75, 15);
@@ -98,7 +102,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Gray;
-            this.label2.Location = new System.Drawing.Point(336, 6);
+            this.label2.Location = new System.Drawing.Point(336, 13);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(45, 15);
@@ -109,6 +113,7 @@
             // 
             this.panel2.BackColor = System.Drawing.Color.Gainsboro;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel2.Controls.Add(this.extractProgressBar);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.statusBar);
             this.panel2.Controls.Add(this.tFixLink);
@@ -118,6 +123,25 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(466, 36);
             this.panel2.TabIndex = 28;
+            // 
+            // extractProgressBar
+            // 
+            this.extractProgressBar.Location = new System.Drawing.Point(3, -2);
+            this.extractProgressBar.Name = "extractProgressBar";
+            this.extractProgressBar.Size = new System.Drawing.Size(461, 12);
+            this.extractProgressBar.TabIndex = 20;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Gainsboro;
+            this.label1.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F);
+            this.label1.ForeColor = System.Drawing.Color.Gray;
+            this.label1.Location = new System.Drawing.Point(11, 13);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(75, 15);
+            this.label1.TabIndex = 14;
+            this.label1.Text = "ExtractIOC 1.0";
             // 
             // fileListingBox
             // 
@@ -134,12 +158,13 @@
             // 
             // fileListingListBox
             // 
+            this.fileListingListBox.BackColor = System.Drawing.SystemColors.Control;
             this.fileListingListBox.FormattingEnabled = true;
             this.fileListingListBox.HorizontalScrollbar = true;
             this.fileListingListBox.ItemHeight = 15;
             this.fileListingListBox.Location = new System.Drawing.Point(6, 22);
             this.fileListingListBox.Name = "fileListingListBox";
-            this.fileListingListBox.Size = new System.Drawing.Size(258, 139);
+            this.fileListingListBox.Size = new System.Drawing.Size(258, 154);
             this.fileListingListBox.Sorted = true;
             this.fileListingListBox.TabIndex = 0;
             // 
@@ -218,11 +243,12 @@
             // 
             // iocCountListBox
             // 
+            this.iocCountListBox.BackColor = System.Drawing.SystemColors.Control;
             this.iocCountListBox.FormattingEnabled = true;
             this.iocCountListBox.ItemHeight = 15;
             this.iocCountListBox.Location = new System.Drawing.Point(5, 20);
             this.iocCountListBox.Name = "iocCountListBox";
-            this.iocCountListBox.Size = new System.Drawing.Size(259, 124);
+            this.iocCountListBox.Size = new System.Drawing.Size(259, 139);
             this.iocCountListBox.TabIndex = 1;
             // 
             // groupBox1
@@ -393,18 +419,6 @@
             this.safeIOCBox.Text = "Safe IOCs (Use Brackets)";
             this.safeIOCBox.UseVisualStyleBackColor = true;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Gainsboro;
-            this.label1.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F);
-            this.label1.ForeColor = System.Drawing.Color.Gray;
-            this.label1.Location = new System.Drawing.Point(11, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(75, 15);
-            this.label1.TabIndex = 14;
-            this.label1.Text = "ExtractIOC 1.0";
-            // 
             // ExtractIOC
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 15F);
@@ -475,6 +489,9 @@
         private System.Windows.Forms.CheckBox safeIOCBox;
         private System.Windows.Forms.Button loadWListBtn;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Timer timer1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.ProgressBar extractProgressBar;
 
     }
 }
