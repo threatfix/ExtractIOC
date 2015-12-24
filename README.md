@@ -1,3 +1,6 @@
+<p align="center"> 
+<img src="http://i.imgur.com/beWOgsn.png"></p>
+
 ExtractIOC
 ===============
 This application allows...
