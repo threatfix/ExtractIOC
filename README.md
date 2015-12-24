@@ -1,6 +1,7 @@
 <p align="center"> 
 <img src="http://i.imgur.com/beWOgsn.png"></p>
 
+### About
 ExtractIOC is a Windows application built to provide assistance to cyber threat intelligence analysts. This application allows a user to import one or more IoC (Indicator of Compromise) reports and export a sorted list or report of user-specified IoC types. For example, if a user has a large list of IoC (IP and email addresses, domains, and MD5 hashes), they can specify which IoC type they want to export, export it as a flat text file or comma separated (CSV) file, implement security brackets (e.g., google[.]com instead of google.com), and filter out IoC through a user specified whitelist.
 
 
