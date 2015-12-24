@@ -35,6 +35,8 @@ ExtractIOC is a Windows application built to provide assistance to cyber threat 
 ### About
 ![ThreatFix](http://cdn1.editmysite.com/uploads/5/1/4/0/51408561/background-images/1387838909.png)
 
+
+<p align="center"> 
+Copyright (c) 2015 Paul Hutelmyer
 <p align="center"> 
 [Threatfix.com](http://www.threatfix.com)
-Copyright (c) 2015 Paul Hutelmyer, ThreatFix
