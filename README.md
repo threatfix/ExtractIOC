@@ -12,7 +12,7 @@ ExtractIOC is a Windows application built to provide assistance to cyber threat 
 To use the current version of ExtractIOC, find the "ExtractIOC.exe" file in the "\Executable" folder. No dependencies are needed to execute and use this application. In addition, find sample IoC files in the "\Executable\Test IoC Files" folder. These can be used to test the application for yourself. Finally, a whitelist example file can be found in the "\Executable\Whitelist Files" directory.
 
 <p align="center"> 
-<img src="http://www.threatfix.com/uploads/5/1/4/0/51408561/7433330_orig.png"></p>
+<img src="http://www.threatfix.com/uploads/5/1/4/0/51408561/5842073.png"></p>
 
 ### Release Notes
 * Provides user with ability to input text files that include IoC.
