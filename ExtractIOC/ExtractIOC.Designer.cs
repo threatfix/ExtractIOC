@@ -210,11 +210,11 @@
             this.threatBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.threatBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.threatBox.Image = ((System.Drawing.Image)(resources.GetObject("threatBox.Image")));
-            this.threatBox.Location = new System.Drawing.Point(-1, 3);
+            this.threatBox.Location = new System.Drawing.Point(-5, 3);
             this.threatBox.Margin = new System.Windows.Forms.Padding(2);
             this.threatBox.Name = "threatBox";
             this.threatBox.Size = new System.Drawing.Size(476, 84);
-            this.threatBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.threatBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.threatBox.TabIndex = 12;
             this.threatBox.TabStop = false;
             this.threatBox.Click += new System.EventHandler(this.threatBox_Click);
